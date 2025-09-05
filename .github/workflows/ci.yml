@@ -22,7 +22,7 @@ jobs:
       - name: Install uv
         run: pip install uv
       - name: Install dependencies
-        run: uv pip --system install ruff black isort mypy
+        run: uv pip install --system ruff black isort mypy
       - name: Ruff
         run: ruff .
       - name: Black
