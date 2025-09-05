@@ -6,89 +6,223 @@ on:
   pull_request:
     branches: [main, master]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  # ============== BACKEND (Django) ==============
   lint-python:
-    name: Lint & Type Check (Python)
+    name: Lint & Type Check (Django)
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
+        shell: bash
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install uv
-        run: pip install uv
-      - name: Install dependencies
-        run: uv pip install --system ruff black isort mypy
-      - name: Ruff
-        run: ruff check src tests
-      - name: Black
-        run: black --check src tests
-      - name: isort
-        run: isort --check-only src tests
-      - name: mypy
-        run: mypy src
 
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('backend/pyproject.toml', 'backend/requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-uv-
+
+      - name: Install tools + project deps (best effort)
+        run: |
+          pip install uv
+          # Prefer dev requirements if present
+          if [ -f requirements-dev.txt ]; then
+            uv pip install --system -r requirements-dev.txt
+          elif [ -f requirements.txt ]; then
+            uv pip install --system -r requirements.txt
+          elif [ -f pyproject.toml ]; then
+            uv pip install --system .
+          else
+            # Fallback so mypy can import Django in stubbed projects
+            uv pip install --system django
+          fi
+          # Ensure linters are present
+          uv pip install --system ruff black isort mypy
+
+      - name: Ruff
+        run: |
+          TARGETS=""
+          for d in src apps backend project; do [ -d "$d" ] && TARGETS="$TARGETS $d"; done
+          [ -d tests ] && TARGETS="$TARGETS tests"
+          ruff check --force-exclude ${TARGETS:-.}
+
+      - name: Black
+        run: |
+          TARGETS=""
+          for d in src apps backend project; do [ -d "$d" ] && TARGETS="$TARGETS $d"; done
+          [ -d tests ] && TARGETS="$TARGETS tests"
+          black --check ${TARGETS:-.}
+
+      - name: isort
+        run: |
+          TARGETS=""
+          for d in src apps backend project; do [ -d "$d" ] && TARGETS="$TARGETS $d"; done
+          [ -d tests ] && TARGETS="$TARGETS tests"
+          isort --check-only ${TARGETS:-.}
+
+      - name: mypy
+        run: |
+          TARGETS=""
+          for d in src apps backend project; do [ -d "$d" ] && TARGETS="$TARGETS $d"; done
+          [ -d tests ] && TARGETS="$TARGETS tests"
+          [ -f manage.py ] && TARGETS="$TARGETS manage.py"
+          mypy ${TARGETS:-.}
 
   test-python:
-    name: Test (Python)
+    name: Test (Django)
+    needs: changes
+    if: needs.changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./backend
+        shell: bash
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install uv
-        run: pip install uv
-      - name: Install dependencies
-        run: uv pip install django
-      - name: Run Django tests
-        run: python manage.py test
 
+      - name: Cache uv
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: ${{ runner.os }}-uv-${{ hashFiles('backend/pyproject.toml', 'backend/requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-uv-
+
+      - name: Install app deps
+        run: |
+          pip install uv
+          if [ -f requirements-dev.txt ]; then
+            uv pip install --system -r requirements-dev.txt
+          elif [ -f requirements.txt ]; then
+            uv pip install --system -r requirements.txt
+          elif [ -f pyproject.toml ]; then
+            uv pip install --system .
+          else
+            uv pip install --system django
+          fi
+
+      - name: Django checks & migrations up-to-date
+        run: |
+          if [ -f manage.py ]; then
+            python manage.py check
+            python manage.py makemigrations --check --dry-run
+          else
+            echo "No manage.py found; skipping Django checks."
+          fi
+
+      - name: Run Django tests
+        run: |
+          if [ -f manage.py ]; then
+            python manage.py test -v 2
+          else
+            echo "No manage.py found; nothing to test."
+          fi
+
+  # ============== FRONTEND (React + Vite) ==============
   lint-frontend:
-    name: Lint & Format (TypeScript)
+    name: Lint / Format / Typecheck (React)
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
+        shell: bash
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - name: Install dependencies
-        run: pnpm install
-      - name: ESLint
-        run: pnpm exec eslint "src/**/*.{ts,tsx,js,jsx}"
-      - name: Prettier
-        run: pnpm exec prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,md}"
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
+
+      - name: ESLint
+        run: |
+          if [ -d src ]; then
+            pnpm exec eslint "src/**/*.{ts,tsx,js,jsx}"
+          else
+            pnpm exec eslint .
+          fi
+
+      - name: Prettier
+        run: |
+          if [ -d src ]; then
+            pnpm exec prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,md}"
+          else
+            pnpm exec prettier --check .
+          fi
+
+      - name: TypeScript (no emit)
+        run: |
+          if [ -f tsconfig.json ]; then
+            pnpm exec tsc --noEmit
+          else
+            echo "No tsconfig.json; skipping TS typecheck."
+          fi
 
   test-frontend:
-    name: Test (TypeScript)
+    name: Test (React)
+    needs: changes
+    if: needs.changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ./frontend
+        shell: bash
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v4
         with:
-          node-version: '18'
-      - name: Install pnpm
-        run: npm install -g pnpm
-      - name: Install dependencies
-        run: pnpm install
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.19.0'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Install deps
+        run: pnpm install --frozen-lockfile
       - name: Run tests
-        run: pnpm test
+        run: pnpm test -- --ci
