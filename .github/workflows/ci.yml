@@ -22,15 +22,16 @@ jobs:
       - name: Install uv
         run: pip install uv
       - name: Install dependencies
-        run: uv pip install ruff black isort mypy
+        run: uv pip install --system ruff black isort mypy
       - name: Ruff
-        run: ruff .
+        run: ruff check src tests
       - name: Black
-        run: black --check .
+        run: black --check src tests
       - name: isort
-        run: isort --check-only .
+        run: isort --check-only src tests
       - name: mypy
-        run: mypy .
+        run: mypy src
+
 
   test-python:
     name: Test (Python)
@@ -68,9 +69,10 @@ jobs:
       - name: Install dependencies
         run: pnpm install
       - name: ESLint
-        run: pnpm exec eslint .
+        run: pnpm exec eslint "src/**/*.{ts,tsx,js,jsx}"
       - name: Prettier
-        run: pnpm exec prettier --check .
+        run: pnpm exec prettier --check "src/**/*.{ts,tsx,js,jsx,json,css,md}"
+
 
   test-frontend:
     name: Test (TypeScript)
