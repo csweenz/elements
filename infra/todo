@@ -1,0 +1,4 @@
+UI components: React components (e.g., <PeriodicTable />, <Explainer />)
+Data fetching/processing: Custom React hooks (e.g., usePeriodicTableData()), or backend APIs
+Heavy/periodic/batch jobs: Backend scripts, Celery tasks, or Django management commands (not React components)
+Newsletter: Backend scheduled job, not a React component
