@@ -1,0 +1,76 @@
+:root {
+  --pt-bg: hsl(220 14% 12%);
+  --pt-card: hsl(220 14% 16%);
+  --pt-border: hsl(0 0% 100% / 0.12);
+  --pt-text: hsl(0 0% 98%);
+  --pt-sub: hsl(0 0% 82%);
+  --pt-ring: hsl(200 100% 50%);
+
+  /* category hues (no hard brand colors; easy to theme later) */
+  --c-alkali:           hsl(342 70% 50% / 0.9);
+  --c-alkaline-earth:   hsl(20  90% 55% / 0.9);
+  --c-transition:       hsl(200 80% 50% / 0.9);
+  --c-post-transition:  hsl(260 65% 55% / 0.9);
+  --c-metalloid:        hsl(140 60% 45% / 0.9);
+  --c-nonmetal:         hsl(60  80% 50% / 0.9);
+  --c-halogen:          hsl(15  80% 55% / 0.9);
+  --c-noble:            hsl(300 55% 55% / 0.9);
+  --c-lanthanide:       hsl(210 40% 55% / 0.9);
+  --c-actinide:         hsl(0   60% 55% / 0.9);
+  --c-unknown:          hsl(0 0% 60% / 0.9);
+}
+
+.pt-wrapper { color: var(--pt-text); }
+.pt-title { margin: 0 0 .5rem 0; font-weight: 700; letter-spacing: .2px; }
+.pt-header { display: flex; align-items: right; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+
+.pt-legend { display: flex; flex-wrap: wrap; gap: .5rem; font-size: .8rem; }
+.pt-swatch { display: inline-flex; align-items: center; gap: .5ch; padding: .15rem .5rem; border-radius: 999px; background: var(--pt-card); border: 1px solid var(--pt-border); }
+.pt-swatch::before { content: ""; width: .75rem; height: .75rem; border-radius: 50%; background: currentColor; }
+
+.pt-grid {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(2.6rem, 1fr));
+  grid-auto-rows: 3.4rem;
+  gap: .35rem;
+  padding: .75rem;
+  background: var(--pt-bg);
+  border: 1px solid var(--pt-border);
+  border-radius: .75rem;
+}
+
+.pt-compact .pt-grid { grid-auto-rows: 2.8rem; }
+
+.pt-cell {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  place-items: center;
+  padding: .25rem;
+  border-radius: .6rem;
+  background: var(--pt-card);
+  border: 1px solid var(--pt-border);
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .08s ease, border-color .08s ease;
+  text-align: right;
+}
+.pt-cell:hover { transform: translateY(-1px); box-shadow: 0 6px 10px hsl(0 0% 0% / .25); }
+.pt-cell:focus-visible { outline: 3px solid var(--pt-ring); outline-offset: 2px; }
+
+.pt-selected { box-shadow: 0 0 0 2px var(--pt-ring) inset; }
+
+.pt-num { position: absolute; top: .25rem; left: .35rem; font-size: .68rem; color: var(--pt-sub); }
+.pt-sym { font-size: 1.05rem; font-weight: 800; letter-spacing: .3px; line-height: 1; }
+.pt-name { font-size: .68rem; color: var(--pt-sub); }
+
+.pt-cat-alkali         { color: var(--c-alkali); }
+.pt-cat-alkaline-earth { color: var(--c-alkaline-earth); }
+.pt-cat-transition     { color: var(--c-transition); }
+.pt-cat-post-transition{ color: var(--c-post-transition); }
+.pt-cat-metalloid      { color: var(--c-metalloid); }
+.pt-cat-nonmetal       { color: var(--c-nonmetal); }
+.pt-cat-halogen        { color: var(--c-halogen); }
+.pt-cat-noble          { color: var(--c-noble); }
+.pt-cat-lanthanide     { color: var(--c-lanthanide); }
+.pt-cat-actinide       { color: var(--c-actinide); }
+.pt-cat-unknown        { color: var(--c-unknown); }

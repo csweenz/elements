@@ -2,3 +2,7 @@ UI components: React components (e.g., <PeriodicTable />, <Explainer />)
 Data fetching/processing: Custom React hooks (e.g., usePeriodicTableData()), or backend APIs
 Heavy/periodic/batch jobs: Backend scripts, Celery tasks, or Django management commands (not React components)
 Newsletter: Backend scheduled job, not a React component
+
+Composite PK (atomic_number, ts) clusters rows by element, making “give me last 30 days for X” extremely fast
+Add the secondary index (ts, atomic_number) for “latest across all elements”
+

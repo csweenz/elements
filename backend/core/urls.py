@@ -13,7 +13,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from .healthz import healthz
-
+from .views import element_detail
 
 
 
@@ -22,11 +22,9 @@ def hello(request):
     return JsonResponse({"message": "Testing API, testing 1 2 3"})
 
 
-
-
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('healthz', healthz),
     path("api/hello/", hello),
+    path("api/elements/<str:symbol>", element_detail, name="element-detail"),
 ]
