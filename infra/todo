@@ -6,3 +6,19 @@ Newsletter: Backend scheduled job, not a React component
 Composite PK (atomic_number, ts) clusters rows by element, making “give me last 30 days for X” extremely fast
 Add the secondary index (ts, atomic_number) for “latest across all elements”
 
+Observability: Django logging + request IDs; frontend network error toasts; server timing headers.
+Security: CORS, HTTPS, authN/Z (per-route permission checks), parameterized queries (ORM by default), output encoding on React is automatic.
+Migrations as contracts: never change models without a migration; keep zero-downtime compatible steps (add columns nullable → backfill → enforce).
+Testing: Django TestCase for services and API; React tests for components/hooks.
+
+
+
+Models/migrations done
+
+API contract stable? (/api/elements,etc... GET/POST/PUT/DELETE)
+CORS/auth configured? (django-cors-headers, either session+CSRF or JWT)
+React query keys stable?
+Error paths verified? (400/401/403/404/422 shown to users)
+
+Read: GET /notes/ → ViewSet list() → queryset (filter/paginate) → Serializer → Renderer → JSON/HTML.
+Write: POST /notes/ → parse & auth → Serializer.validate → service (transaction.atomic) → save → Serializer → Response.

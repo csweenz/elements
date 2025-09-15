@@ -20,7 +20,7 @@ export interface ElementData {
   category: Category;
 }
 
-export const categories: { key: Category; label: string }[] = [
+export const categories: readonly { key: Category; label: string }[] = [
   { key: "alkali",          label: "Alkali metal" },
   { key: "alkaline-earth",  label: "Alkaline earth" },
   { key: "transition",      label: "Transition metal" },
@@ -37,7 +37,7 @@ export const categories: { key: Category; label: string }[] = [
 export const categoryClass = (c: Category) => `pt-cat-${c}`;
 
 // --- Main body (periods 1–7) ---
-export const ELEMENTS: ElementData[] = [
+export const ELEMENTS: readonly ElementData[] = [
   // Period 1
   { number: 1,  symbol: "H",  name: "Hydrogen",      x: 1,  y: 1, category: "nonmetal" },
   { number: 2,  symbol: "He", name: "Helium",        x: 18, y: 1, category: "noble" },

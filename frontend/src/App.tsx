@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PeriodicTable from "./components/PeriodicTable";
 import type { ElementData } from "./data/elements";
+import { getElementData } from "./api";
 
 function App() {
   const [picked, setPicked] = useState<string[]>([]);
@@ -10,21 +11,22 @@ function App() {
       prev.includes(el.symbol) ? prev.filter(s => s !== el.symbol) : [...prev, el.symbol]
     );
 
-    //ping Django for testing
+    // Fetch element data from Django backend
     try {
-      const res = await fetch(`/api/elements/${el.symbol}`);
-       const json = await res.json();
-       console.log("Backend says:", json);
+      const res = await getElementData(el.symbol);
+      console.log("Backend says:", res);
     } catch (e) {
       console.error(e);
     }
   };
 
   return (
-    <main><div id="mainscreendiv">
-      <h1>Demo: Periodic Table</h1>
-      <PeriodicTable onElementClick={handlePick} selectedSymbols={picked} />
-    </div></main>
+    <main>
+      <div id="mainscreendiv">
+        <h1>Demo: Periodic Table</h1>
+        <PeriodicTable onElementClick={handlePick} selectedSymbols={picked} />
+      </div>
+    </main>
   );
 }
 

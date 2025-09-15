@@ -1,14 +1,15 @@
-"""
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+# backend/core/urls.py
+
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import (
+    ElementList,
+    PriceSourceList,
+    FeedstockList,
+    ElementFeedstockWeightList,
+    ElementPriceList,
+    FeedstockPriceList,
+)
 
 from django.contrib import admin
 from django.urls import path
@@ -27,4 +28,13 @@ urlpatterns = [
     path('healthz', healthz),
     path("api/hello/", hello),
     path("api/elements/<str:symbol>", element_detail, name="element-detail"),
+    path('', include(router.urls)),
 ]
+
+router = DefaultRouter()
+router.register(r'elements', ElementList)
+router.register(r'pricesources', PriceSourceList)
+router.register(r'feedstocks', FeedstockList)
+router.register(r'elementfeedstockweights', ElementFeedstockWeightList)
+router.register(r'elementprices', ElementPriceList)
+router.register(r'feedstockprices', FeedstockPriceList)

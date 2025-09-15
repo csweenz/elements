@@ -8,4 +8,7 @@ This folder is for infrastructure as code, deployment scripts, and related resou
 
 cd ./backend
 source venv/bin/activate
+python manage.py runserver
 
+cd ./frontend
+pnpm dev
