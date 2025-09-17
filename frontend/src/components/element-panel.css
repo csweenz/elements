@@ -1,0 +1,23 @@
+.elpanel-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.35);
+  display: grid; place-items: center; z-index: 1000;
+}
+.elpanel {
+  background: var(--pt-bg, #fff);
+  color: var(--pt-text, #111);
+  width: min(90vw, 520px);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0,0,0,.35);
+  position: relative;
+  outline: none;
+}
+.elpanel-body { padding: 20px 24px; }
+.elpanel-close {
+  position: absolute; top: 8px; right: 10px;
+  background: transparent; border: 0; font-size: 22px; cursor: pointer;
+}
+.muted { color: #666; font-weight: 500; }
+.kv { display: grid; grid-template-columns: 140px 1fr; gap: 6px 14px; margin-top: 10px; }
+.kv dt { color: #666; }
+.kv dd { margin: 0; }
+.error { color: #b00020; }
