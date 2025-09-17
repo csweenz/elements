@@ -20,11 +20,10 @@ class ElementFeedstockWeightSerializer(serializers.ModelSerializer):
     class Meta:
         model = ElementFeedstockWeight
         fields = '__all__'
+
 class ElementPriceSerializer(serializers.ModelSerializer):
-    # send/receive atomic_number as the FK field
     element = serializers.PrimaryKeyRelatedField(
-        queryset=Element.objects.all(),
-        to_field="atomic_number"
+        queryset=Element.objects.all()
     )
     class Meta:
         model = ElementPrice
