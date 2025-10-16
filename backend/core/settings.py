@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -112,6 +113,31 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 50,
+}
+
+# --- CELERY CONFIGURATION ---
+CELERY_BROKER_URL = 'redis://127.0.0.1:6380/0' 
+CELARY_RESULT_BACKEND = 'redis://127.0.0.1:6380/0' 
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC' 
+
+CELERY_BEAT_SCHEDULE = {
+    "ingest-worldbank-pink-sheet-daily-0915": {
+        "task": "elemental.tasks.ingest_worldbank_pink_sheet",
+        "schedule": crontab(hour=9, minute=15),  # server TZ
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
 }
 
 # Frontend Stuff for production

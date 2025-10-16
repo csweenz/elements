@@ -12,9 +12,7 @@ Migrations as contracts: never change models without a migration; keep zero-down
 Testing: Django TestCase for services and API; React tests for components/hooks.
 
 
-
 Models/migrations done
-
 API contract stable? (/api/elements,etc... GET/POST/PUT/DELETE)
 CORS/auth configured? (django-cors-headers, either session+CSRF or JWT)
 React query keys stable?
@@ -22,3 +20,17 @@ Error paths verified? (400/401/403/404/422 shown to users)
 
 Read: GET /notes/ → ViewSet list() → queryset (filter/paginate) → Serializer → Renderer → JSON/HTML.
 Write: POST /notes/ → parse & auth → Serializer.validate → service (transaction.atomic) → save → Serializer → Response.
+
+
+Operationalization
+Redis client side caching
+Add management command that instantiates the pipeline, supports --dry-run/--limit, shows clear errors
+Define how the pipeline runs in production (systemd, cron, CI) and document env vars/credentials
+
+Testing & Documentation
+Write unit tests (stub, transform, idempotent)
+Update ETL docs with source details and operational notes
+
+
+monthly electricity prices:  FRED
+APIninja:
