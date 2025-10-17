@@ -3,3 +3,4 @@ django-cors-headers==4.0.*
 Django>=5.0,<6
 celery>=5.3
 redis>=5
+dotenv>=1.1.1
