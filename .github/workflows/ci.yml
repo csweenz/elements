@@ -137,6 +137,9 @@ jobs:
           fi
 
       - name: Django checks & migrations up-to-date
+        env:
+          DJANGO_SETTINGS_MODULE: core.settings
+          USE_SQLITE_IN_CI: "1"
         run: |
           if [ -f manage.py ]; then
             python manage.py check
@@ -146,6 +149,9 @@ jobs:
           fi
 
       - name: Run Django tests
+        env:
+          DJANGO_SETTINGS_MODULE: core.settings
+          USE_SQLITE_IN_CI: "1"
         run: |
           if [ -f manage.py ]; then
             python manage.py test -v 2
